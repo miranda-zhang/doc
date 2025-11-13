@@ -730,4 +730,3 @@ When your schema compiles:
 So `query do ... end` isn’t just syntax sugar — it’s a schema builder.
 
 ---
-
