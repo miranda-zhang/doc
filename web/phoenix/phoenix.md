@@ -665,3 +665,153 @@ MIX_ENV=test mix test
 
 * Use `mix test --failed` to re-run only failing tests.
 
+# Environment
+### 1. **`config/config.exs`**
+
+* This is the **base configuration** for all environments.
+* It often includes lines like:
+
+```elixir
+import_config "#{Mix.env()}.exs"
+```
+
+This line tells Elixir to load the environment-specific config (`dev.exs`, `prod.exs`, `test.exs`, `staging.exs`) **after** the base config.
+
+---
+
+### 2. **Environment-specific files**
+
+* `dev.exs` → Development environment
+* `prod.exs` → Production environment
+* `test.exs` → Test environment
+* `staging.exs` → Staging environment
+
+These files **override** settings from `config.exs` as needed.
+
+---
+
+### 3. **`runtime.exs`**
+
+* Loaded at runtime (not compile-time).
+* Useful for configuration that depends on environment variables or secrets that are only available at runtime.
+* Still can differentiate between environments:
+
+```elixir
+if config_env() == :prod do
+  # prod-only runtime config
+end
+```
+
+---
+
+### 4. **How the environment is chosen**
+
+The environment is determined by `Mix.env()`:
+
+* When you run commands like `mix phx.server` or `iex -S mix`, it defaults to `:dev`.
+* You can override it with:
+
+```bash
+MIX_ENV=prod mix phx.server
+```
+
+* This will load `config.exs` → `prod.exs` → `runtime.exs` in that order.
+
+---
+
+✅ **Summary:**
+
+* `config/config.exs` decides which env-specific file to load (via `import_config "#{Mix.env()}.exs"`).
+* `MIX_ENV` is the variable that determines which environment (`dev`, `prod`, `test`, `staging`) is active.
+* `runtime.exs` handles runtime-specific configs, often for secrets or dynamic settings.
+
+Here’s a clear diagram showing the **load order of configuration files in an Elixir/Phoenix project**:
+
+```
+                     ┌───────────────┐
+                     │ config/config.exs │
+                     └───────────────┘
+                              │
+                              ▼
+            ┌────────────────────────────────┐
+            │ import_config "#{Mix.env()}.exs" │
+            └────────────────────────────────┘
+                              │
+          ┌─────────┬───────────┬─────────────┐
+          ▼         ▼           ▼             ▼
+     dev.exs     test.exs     prod.exs     staging.exs
+          │         │           │             │
+          └─────────┴───────────┴─────────────┘
+                              │
+                              ▼
+                     ┌───────────────┐
+                     │ config/runtime.exs │
+                     └───────────────┘
+```
+
+### **Priority (highest → lowest)**
+
+1. **`runtime.exs`** – Can override both environment and base config.
+2. **Environment-specific config (`dev.exs`, `prod.exs`, etc.)** – Overrides base config.
+3. **`config.exs`** – Base/default config, lowest priority.
+
+# Why runtime.exs is needed
+### 1. **prod.exs** – compile-time configuration
+
+* Files like `prod.exs` are **read at compile time**, when you build your release or run `mix phx.server` in prod.
+* That means any configuration values are **baked into the compiled app**.
+* If you put credentials (like API keys, DB passwords) here, they will be fixed at compile time.
+* **Problem:** For releases or Docker images, you often want to supply **different credentials for each environment** (staging, production, etc.) **without rebuilding the app**. Hardcoding them in `prod.exs` makes that harder.
+
+---
+
+### 2. **runtime.exs** – runtime configuration
+
+* `runtime.exs` is executed **when the app starts**, not when it’s compiled.
+* This allows you to:
+
+  * Read environment variables (`System.get_env/1`).
+  * Change credentials or secrets dynamically depending on the environment.
+  * Avoid committing secrets into your repository.
+* Example:
+
+```elixir
+# runtime.exs
+if config_env() == :prod do
+  database_url = System.fetch_env!("DATABASE_URL")
+  config :my_app, MyApp.Repo,
+    url: database_url,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+end
+```
+
+Here, the database URL and pool size are determined **when the app boots**, not when it’s compiled.
+
+---
+
+### 3. **Why it matters for secrets**
+
+* Hardcoding secrets in `prod.exs` is risky:
+
+  * They could accidentally get checked into Git.
+  * Changing them requires **recompiling** the app.
+* Using `runtime.exs` + environment variables:
+
+  * Keeps secrets out of your code.
+  * Lets you deploy the same release to multiple environments.
+  * Plays nicely with Docker, Kubernetes, or Heroku-style setups.
+
+---
+
+### ✅ Summary
+
+| Feature                  | `prod.exs`                   | `runtime.exs`   |
+| ------------------------ | ---------------------------- | --------------- |
+| Evaluated                | Compile-time                 | Runtime         |
+| Can use environment vars | Limited (requires `Mix.env`) | Fully supported |
+| Good for secrets         | ❌                            | ✅               |
+| Change without rebuild   | ❌                            | ✅               |
+
+---
+
+In short: **put credentials in `runtime.exs` because they’re sensitive and often environment-specific, and you want them evaluated at runtime, not baked into your compiled code.**

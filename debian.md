@@ -7,8 +7,9 @@ Open gui file manager
 ```bash
 xdg-open .
 ```
+xdg comes from "X Desktop Group"
 
-check sudo right
+Check sudo right
 ```bash
 sudo whoami
 ```
@@ -259,4 +260,29 @@ Hides the window (puts it into the “hidden” state)
 
 ```sh
 ln -s ~/.bashrc ~/Documents/workspace/config_files/.bashrc
+sudo ln -s /etc/systemd/logind.conf ~/Documents/workspace/config_files/logind.conf 
+```
+# Auto update
+1. Install `unattended-upgrades`:
+
+```bash
+sudo apt install unattended-upgrades
+```
+
+2. Enable it:
+
+```bash
+sudo dpkg-reconfigure --priority=low unattended-upgrades
+```
+
+**Important:** Updates happen **while the system is running**, not during shutdown.
+# Install Updates
+```sh
+sudo apt upgrade -y
+```
+# Auto Power off
+> /etc/systemd/logind.conf
+```sh
+IdleAction=poweroff
+IdleActionSec=2h
 ```

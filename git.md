@@ -165,3 +165,9 @@ git fetch --prune
 
 * This removes deleted branches from `git branch -r` listings.
 
+# 
+```sh
+git pull upstream master
+git checkout -b newbranch
+git push
+```
