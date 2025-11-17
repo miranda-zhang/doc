@@ -153,21 +153,11 @@ git push origin --delete <branch-name>
 git push origin --delete new_env_var4local
 ```
 
----
-
-### 3. **Optional: clean up references locally**
-
-After deleting a remote branch, you can remove stale references:
-
-```bash
-git fetch --prune
-```
-
-* This removes deleted branches from `git branch -r` listings.
-
-# 
+# PR 
 ```sh
-git pull upstream master
 git checkout -b newbranch
-git push
+git fetch --all
+git checkout my-feature-branch
+git rebase upstream/master
+git push origin my-feature-branch --force-with-lease
 ```

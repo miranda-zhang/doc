@@ -48,7 +48,8 @@ kill -9 12345
 ```
 
 ```bash
-sudo apt install ./<file>.deb
+sudo apt update
+sudo apt install -f ./<file>.deb
 # If you're on an older Linux distribution, you will need to run this instead:
 # sudo dpkg -i <file>.deb
 # sudo apt-get install -f # Install dependencies
