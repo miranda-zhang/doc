@@ -123,6 +123,53 @@ git push --force-with-lease origin your-branch
 💡 Pro tip: If you always rebase your feature branches on top of upstream master before pushing, your PRs will **never accidentally include other people’s commits**.
 You can safely remove a Git branch **both locally and remotely** with the following commands:
 
+## Fix PR with other ppl's change
+
+### 1. **Check your branch’s history**
+
+Run:
+
+```bash
+git log --oneline --graph --decorate
+```
+
+* Look for **your commits** vs **other people’s commits**.
+* Note the commit hashes of your work — these are what you want in the PR.
+
+---
+
+### 2. **Create a backup branch (optional but safe)**
+
+```bash
+git branch backup-my-pr
+```
+
+* This ensures you can always go back if something goes wrong.
+
+---
+
+### 3. **Rebase interactively onto `upstream/master`**
+
+Assuming `upstream` is the main repo and `master` is the target branch:
+
+```bash
+git fetch upstream
+git rebase -i upstream/master
+```
+
+* In the editor:
+
+  * Keep (`pick`) only your commits.
+  * Drop (`d`) other people’s commits that accidentally got pulled in.
+* Save and exit. Resolve any conflicts if prompted.
+
+---
+
+### 4. **Force-push your cleaned branch to your PR**
+
+```bash
+git push origin your-branch-name --force-with-lease
+```
 # Delete
 
 ### 1. **Delete a local branch**
@@ -137,7 +184,6 @@ git branch -d <branch-name>
 ```bash
 git branch -D <branch-name>
 ```
-
 ---
 
 ### 2. **Delete a remote branch**
@@ -147,17 +193,14 @@ git push origin --delete <branch-name>
 ```
 
 * This tells the remote (`origin`) to remove the branch.
-* Example:
-
-```bash
-git push origin --delete new_env_var4local
-```
 
 # PR 
 ```sh
 git checkout -b newbranch
-git fetch --all
 git checkout my-feature-branch
+git fetch --all
 git rebase upstream/master
+git pull
 git push origin my-feature-branch --force-with-lease
+git push --force-with-lease
 ```
