@@ -199,8 +199,7 @@ git push origin --delete <branch-name>
 git checkout -b newbranch
 git checkout my-feature-branch
 git fetch --all
-git rebase upstream/master
-git pull
-git push origin my-feature-branch --force-with-lease
+git rebase -i upstream/master
 git push --force-with-lease
+git push origin my-feature-branch --force-with-lease
 ```
