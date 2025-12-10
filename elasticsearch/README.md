@@ -319,10 +319,6 @@ curl -X GET "localhost:9200/aurora-index-1761178970/_settings?pretty"
 * You can check one of these with the same `_search` query.
 
 # Setting
-Thanks — now we can see exactly how your `aurora-index-1761178970` is configured. Let me break it down in **plain terms**.
-
----
-
 ## **1. Shards & Replicas**
 
 ```json

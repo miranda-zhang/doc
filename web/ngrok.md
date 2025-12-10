@@ -1,5 +1,5 @@
 # Ngrok
-### Without ngrok
+## Without ngrok
 
 * your Phoenix server is at `http://localhost:4000`
 * **only** your computer can reach that address
@@ -7,7 +7,7 @@
 
   * because "localhost" doesn’t exist on the internet
 
-### With ngrok
+## With ngrok
 
 ngrok gives you a **public https URL** that tunnels into your local machine.
 
@@ -58,7 +58,7 @@ http://localhost:4040
 ngrok shows every request it received → headers, body, timing, replay button.
 
 this is insanely useful for webhook debugging.
-# Install
+## Install
 
 ### 1) download .deb from ngrok site
 
@@ -117,5 +117,9 @@ but the first method is the current recommended.
 ## Dashboard
 - https://dashboard.ngrok.com/traffic-inspector
 
+## Forward HTTPS traffic
+```sh
+ngrok http https://localhost:443
+```
 # Alternative
 - https://webhook.site/

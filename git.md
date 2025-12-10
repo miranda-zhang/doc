@@ -170,6 +170,15 @@ git rebase -i upstream/master
 ```bash
 git push origin your-branch-name --force-with-lease
 ```
+# Get rid of large file from commit history
+```sh
+. ~/Documents/workspace/venvg/git-tools-venv/bin/activate
+git filter-repo --path semantic_search/python/docs_with_embeddings.jsonl --invert-paths
+git remote add origin https://github.com/miranda-zhang/web_st.git
+git push origin main --force
+git log main --oneline
+```
+
 # Delete
 
 ### 1. **Delete a local branch**
