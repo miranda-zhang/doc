@@ -206,6 +206,7 @@ git push origin --delete <branch-name>
 # PR
 ```sh
 git fetch upstream
+git merge upstream/master
 git checkout -b newbranch
 git checkout my-feature-branch
 git fetch --all

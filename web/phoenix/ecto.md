@@ -217,3 +217,126 @@ mix ecto.migrate
 
 * If the table had **any data**, rolling back will delete it. Make sure you don’t need it, or back it up first.
 * After adding `default: fragment("NOW()")`, PostgreSQL will automatically set `inserted_at` and `updated_at` for any new rows, avoiding the `not_null_violation`.
+
+# Making Ecto Migrations Idempotent
+
+## What “idempotent” means
+
+An **idempotent migration** can be run multiple times without causing errors or changing the database in unexpected ways.
+
+In practice, this means:
+
+* Running `mix ecto.migrate` twice won’t fail
+* Pulling migrations from another branch won’t explode
+* Re-running migrations in CI or staging is safe
+
+This is especially useful when:
+
+* Multiple developers are working on the same schema
+* Branches are merged out of order
+* A column/table may already exist due to manual changes or hotfixes
+
+---
+
+## The problem with `change/0`
+
+A typical migration looks like this:
+
+```elixir
+def change do
+  alter table(:product_stocks) do
+    add :low_stock_threshold, :integer, default: 0, null: false
+  end
+end
+```
+
+This **assumes** the column does not exist.
+
+If it *does* exist, you’ll get an error like:
+
+```
+ERROR 42701 (duplicate_column)
+column "low_stock_threshold" already exists
+```
+
+At that point, `mix ecto.migrate` stops.
+
+---
+
+## The idempotent approach
+
+To make the migration safe, we:
+
+1. Replace `change/0` with explicit `up/0` and `down/0`
+2. Guard schema changes using `column_exists?/2`
+
+---
+
+## Example: Adding a column safely
+
+```elixir
+def up do
+  unless column_exists?(:product_stocks, :low_stock_threshold) do
+    alter table(:product_stocks) do
+      add :low_stock_threshold, :integer, default: 0, null: false
+    end
+  end
+end
+
+def down do
+  if column_exists?(:product_stocks, :low_stock_threshold) do
+    alter table(:product_stocks) do
+      remove :low_stock_threshold
+    end
+  end
+end
+```
+
+### What this does
+
+* ✅ Adds the column **only if it doesn’t already exist**
+* ✅ Rolls back cleanly **only if the column exists**
+* ✅ Prevents duplicate column errors
+* ✅ Makes migrations safer across environments
+
+---
+
+## Other useful existence checks
+
+Ecto also provides helpers for other schema elements:
+
+```elixir
+table_exists?(:users)
+index_exists?(:users, [:email])
+constraint_exists?(:users, "users_email_index")
+```
+
+### Example: adding an index safely
+
+```elixir
+def up do
+  unless index_exists?(:users, [:email]) do
+    create index(:users, [:email])
+  end
+end
+
+def down do
+  if index_exists?(:users, [:email]) do
+    drop index(:users, [:email])
+  end
+end
+```
+
+---
+
+## When should you do this?
+
+Use idempotent migrations when:
+
+* Working in a team with frequent rebases/merges
+* Supporting multiple environments (dev, staging, prod)
+* Maintaining long-lived projects
+* You’ve ever seen `duplicate_column` or `already exists` errors 😄
+
+For small solo projects, `change/0` is usually fine.
+For shared codebases, **idempotent migrations save real time**.

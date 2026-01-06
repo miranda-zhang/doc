@@ -76,6 +76,10 @@ sudo systemctl status elasticsearch.service
 ---
 
 ## 🔍 8. Verify installation
+Check version
+```sh
+curl -X GET "localhost:9200/"
+```
 
 Run:
 
