@@ -14,5 +14,13 @@ psql -d databasename -U username -h hostname -p port
 -- search all tables
 SELECT table_name 
 FROM information_schema.tables 
-WHERE table_name LIKE '%product%';
+WHERE table_name LIKE '%synonym%';
+
+COPY (
+    SELECT ...  
+    FROM ...
+    WHERE email NOT LIKE '%@sydneytools.com.au%'
+) 
+TO '/tmp/export.csv' 
+WITH CSV HEADER;
 ```

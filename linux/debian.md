@@ -19,16 +19,6 @@ which shell is using
 echo $SHELL
 ```
 
-check mem
-```bash
-free -h
-```
-
-This shows the top 10 memory-hungry processes:
-```bash
-ps aux --sort=-%mem | head -n 10
-```
-
 Find what’s using port `4000` and kill it:
 
 ```bash
@@ -55,12 +45,17 @@ sudo apt install -f ./<file>.deb
 # sudo apt-get install -f # Install dependencies
 ```
 
-# CPU architecture
+Check Debian version
+```sh
+lsb_release -a
+```
+
+# CPU
 To check whether your **Debian system** is running on **ARM** or **Intel (x86/x86_64)** architecture, you can run one of the following commands in the terminal:
 
 ---
 
-### 🧩 Option 1: Use `uname -m`
+## Use `uname -m`
 
 ```bash
 uname -m
@@ -73,37 +68,7 @@ uname -m
 * `armv7l` → ARM 32-bit
 * `aarch64` → ARM 64-bit
 
----
-
-### 🧩 Option 2: Use `dpkg --print-architecture`
-
-```bash
-dpkg --print-architecture
-```
-
-**Output examples:**
-
-* `amd64` → Intel/AMD 64-bit
-* `i386` → Intel 32-bit
-* `armhf` → ARM 32-bit (hard float)
-* `arm64` → ARM 64-bit
-
----
-
-### 🧩 Option 3: Use `lscpu`
-
-```bash
-lscpu
-```
-
-This gives detailed CPU information. Look for:
-
-* **Architecture:** (`x86_64`, `arm64`, etc.)
-* **Model name:** to identify specific CPU type.
-
----
-
-### ✅ Example outputs
+✅ Example outputs
 
 **Intel/AMD:**
 
@@ -122,40 +87,37 @@ aarch64
 $ dpkg --print-architecture
 arm64
 ```
-
-Check file permissions:
-```bash
-ls -l /mnt/internal
+# Check CPU frequency
+```sh
+$ lscpu | grep "MHz"
+CPU(s) scaling MHz:                      91%
+CPU max MHz:                             3600.0000
+CPU min MHz:                             800.0000
 ```
-
 # Disk Space
 Clear cached .deb packages in /var/cache/apt/archives
 ```bash
 sudo apt clean
-df -h /var
+sudo apt autoremove --purge
+sudo rm -rf /tmp/*
+sudo journalctl --vacuum-time=3d   # keep only last 3 days of logs
 ```
-
 See what’s using space in /var
 
 Run this to identify the biggest directories:
-
 ```bash
-$ sudo du -h --max-depth=1 /var | sort -hr
-7.6G	/var
-7.3G	/var/lib
-$ sudo du -h --max-depth=1 /var/lib | sort -hr | head -10
-7.3G	/var/lib
-7.0G	/var/lib/postgresql
-153M	/var/lib/apt
-78M	/var/lib/elasticsearch
-69M	/var/lib/dpkg
+$ sudo du -h --max-depth=1 / | sort -hr
 $ df -h /var /srv 
-Filesystem                   Size  Used Avail Use% Mounted on
-/dev/mapper/debian--vg-var   9.1G  7.7G  936M  90% /var
-/dev/mapper/debian--vg-root   23G  9.1G   13G  43% /
 ```
-You can move PostgreSQL’s data directory to a larger filesystem, e.g. /srv/postgresql or /data.
+Move /opt or /srv to /home
+```sh
+sudo mv /opt /home/opt
+sudo ln -s /home/opt /opt
 
+sudo mv /srv /home/srv
+sudo ln -s /home/srv /srv
+```
+You can move PostgreSQL’s data directory to a larger filesystem
 Example procedure:
 ```bash
 sudo systemctl stop postgresql
@@ -169,8 +131,6 @@ sudo chown -R postgres:postgres /srv/postgresql
 sudo chmod 700 /srv/postgresql
 
 sudo systemctl restart postgresql
-sudo -i -u postgres
-psql -h localhost aurora_dev
 ```
 
 # Add App to Menu and Dash
@@ -268,3 +228,18 @@ sudo ln -s /etc/systemd/logind.conf ~/Documents/workspace/config_files/logind.co
 sudo apt upgrade -y
 ```
 
+# Memory
+check mem
+```bash
+free -h
+```
+
+This shows the top 10 memory-hungry processes:
+```bash
+ps aux --sort=-%mem | head -n 10
+```
+
+Lists each memory slot on your motherboard
+```
+sudo dmidecode --type 17
+```

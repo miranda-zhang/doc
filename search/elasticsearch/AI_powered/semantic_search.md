@@ -1,5 +1,5 @@
 # Semantic search
-## **1. What semantic search is**
+## What semantic search is
 
 * Traditional search relies on **keyword matching**:
 
@@ -14,7 +14,7 @@ In other words, it’s about **matching concepts rather than literal tokens**.
 
 ---
 
-## **2. How semantic search is implemented**
+## How semantic search is implemented
 
 ### **a. Vector embeddings + similarity search**
 
@@ -56,7 +56,7 @@ In other words, it’s about **matching concepts rather than literal tokens**.
 | Misspellings / paraphrases | ❌          | ✅                 |
 
 
-## **4. Query with semantic search**
+## Query with semantic search
 
 We’ll convert the **user query** into an embedding and search by **cosine similarity**:
 
@@ -96,7 +96,7 @@ print(response.json())
 
 ---
 
-## **5. Integrating with your Elixir app**
+## Integrating with your Elixir app
 
 1. Keep your **existing indices (`aurora-index-*`)** for keyword search and suggestions.
 2. Add a **new semantic index (`aurora-semantic-index`)** for AI-powered search.
@@ -133,9 +133,7 @@ IO.inspect(Jason.decode!(resp))
 * No need to touch your existing indices.
 * Keyword + suggestions still work; semantic search is **optional/additive**.
 
----
-
-## **6. Summary**
+## Summary
 
 * Add a **new semantic index** with `dense_vector` fields.
 * Generate **embeddings** for your documents using OpenAI or similar.

@@ -131,7 +131,7 @@ New value: 2rjLq3TtQ6mU4z3mG5bV
 Now run:
 
 ```bash
-curl -u elastic https://localhost:9200 -k
+curl -u elastic http://localhost:9200 -k
 ```
 
 When prompted, enter the password you just generated.
@@ -205,7 +205,7 @@ sudo systemctl restart elasticsearch
 
 ---
 
-## 🧪 10. Test connection
+## 🧪 10. Test connection password
 
 ```bash
 curl -k -u elastic https://localhost:9200
@@ -279,6 +279,7 @@ sudo systemctl enable elasticsearch
 ```sh
 sudo nano /etc/elasticsearch/jvm.options
 ```
+```
 -Xms1g
 -Xmx1g
 ```
@@ -289,145 +290,4 @@ sudo chown -R elasticsearch:elasticsearch /etc/elasticsearch
 # Check log for error msg
 ```sh
 sudo journalctl -u elasticsearch.service -b
-```
-```sh
-sudo service elasticsearch start
-```
-# **Checks you can do**
-```sh
-curl -X GET "localhost:9200/_cat/indices?v"
-```
-1. **Inspect documents in an index** (e.g., your main index):
-
-```bash
-curl -X GET "localhost:9200/aurora-index-1761178970/_search?pretty&size=5"
-```
-
-* Returns the first 5 documents.
-
-2. **Check mappings** (field types):
-
-```bash
-curl -X GET "localhost:9200/aurora-index-1761178970/_mapping?pretty"
-```
-
-3. **Check index settings**:
-
-```bash
-curl -X GET "localhost:9200/aurora-index-1761178970/_settings?pretty"
-```
-
-4. **If your app is using suggestions**:
-
-* It probably writes to `aurora-suggestion-index-*`.
-* You can check one of these with the same `_search` query.
-
-# Setting
-## **1. Shards & Replicas**
-
-```json
-"number_of_shards" : "1",
-"number_of_replicas" : "0",
-```
-
-* **1 primary shard** → all documents are stored in a single shard.
-* **0 replicas** → no copies for failover (single-node setup).
-* Simple setup, fine for small datasets or dev/testing.
-
----
-
-## **2. Analysis & Tokenization**
-
-The `analysis` section shows **custom analyzers, tokenizers, and filters**. This defines **how text is indexed and searched**.
-
-### **Key parts**
-
-#### **a. Synonyms**
-
-```json
-"search_synonym" : {
-  "type" : "synonym",
-  "synonyms" : ["hikoki,hitachi", "suction,sucker", ...]
-}
-```
-
-* Maps multiple terms to the same meaning.
-* Example: searching for `"hikoki"` also finds `"hitachi"`.
-
-#### **b. Edge n-grams**
-
-```json
-"en_ngram_filter" : { "type": "edge_ngram", "min_gram": 3, "max_gram": 10 }
-```
-
-* Supports **autocomplete / prefix searches**.
-* Example: typing `"milw"` matches `"milwaukee"`.
-
-#### **c. Shingle filter**
-
-* Combines adjacent words for **phrase matching**.
-* Example: `"power drill"` could be treated as a single token for searching.
-
-#### **d. Stop words**
-
-```json
-"en_stop_words" : { "type": "stop", "stopwords": "_english_" }
-```
-
-* Common words like `"the"`, `"and"` are ignored.
-
-#### **e. Char filters**
-
-* Preprocess text before tokenization.
-* Examples: normalize `"12.0Ah"` → `"12Ah"`, handle codes, remove HTML tags.
-
-#### **f. Custom analyzers**
-
-* Multiple analyzers for different use cases:
-
-  * `en_default_analyzer` → normal search
-  * `keyword_analyzer` → exact match on keywords
-  * `en_ngram_analyzer_front` → autocomplete
-  * `en_concat_analyzer` → combine multi-word tokens
-
----
-
-## **3. Routing / Allocation**
-
-```json
-"_tier_preference" : "data_content"
-```
-
-* Ensures the index is allocated to **data nodes intended for content storage**.
-* Important in multi-tier Elasticsearch setups.
-
----
-
-## **4. Max result window**
-
-```json
-"max_result_window" : "99999"
-```
-
-* Allows fetching up to 99,999 results in one search request.
-* Useful if your app does deep scrolling or large exports.
-
-# Suggestion
-```sh
-curl -X POST "localhost:9200/aurora-suggestion-index-1762833600/_search?pretty" -H 'Content-Type: application/json' -d'
-{
-  "_source": ["suggest"], 
-  "query": {
-    "multi_match": {
-      "query": "milw",
-      "type": "bool_prefix",
-      "fields": [
-        "suggest",
-        "suggest._2gram",
-        "suggest._3gram"
-      ]
-    }
-  }
-}'
-
 ```

@@ -1,4 +1,4 @@
-### 1) check remotes
+# check remotes
 
 ```sh
 git remote -v
@@ -12,31 +12,10 @@ origin    git@github.com:you/yourfork.git
 
 ---
 
-### 2) add upstream
+# add upstream
 
 ```sh
 git remote add upstream git@bitbucket.org:someproject.git
-```
-
-(or use https url if you want)
-
----
-
-### 3) fetch
-
-```sh
-git fetch --all
-```
-
----
-
-### 4) merge/rebase what you want
-
-example: update your local main from upstream main:
-
-```sh
-git checkout master
-git pull upstream master
 ```
 
 # Restore
@@ -72,7 +51,7 @@ git commit -am "msg" --no-verify
 ```
 # Rebase
 
-### 1️⃣ Don’t do a regular merge
+## Don’t do a regular merge
 
 ```bash
 git pull upstream master
@@ -84,7 +63,7 @@ git pull upstream master
 * This is why your PR showed other people’s code.
 
 
-### Optional: make `pull` always rebase
+## Optional: make `pull` always rebase
 
 You can configure Git so that `git pull` automatically rebases instead of merging:
 
@@ -96,32 +75,6 @@ git config --global pull.rebase true
 git config branch.master.rebase false
 # (or branch.main.rebase false)
 ```
-
-### 4️⃣ Workflow summary
-
-1. **Fetch latest master**
-
-```bash
-git fetch upstream
-```
-
-2. **Rebase your branch**
-
-```bash
-git rebase upstream/master
-```
-
-3. **Resolve any conflicts**
-4. **Force push to your fork**
-
-```bash
-git push --force-with-lease origin your-branch
-```
-
----
-
-💡 Pro tip: If you always rebase your feature branches on top of upstream master before pushing, your PRs will **never accidentally include other people’s commits**.
-You can safely remove a Git branch **both locally and remotely** with the following commands:
 
 ## Fix PR with other ppl's change
 
@@ -165,7 +118,7 @@ git rebase -i upstream/master
 
 ---
 
-### 4. **Force-push your cleaned branch to your PR**
+# **Force-push your cleaned branch to your PR**
 
 ```bash
 git push origin your-branch-name --force-with-lease
@@ -178,6 +131,74 @@ git remote add origin https://github.com/miranda-zhang/web_st.git
 git push origin main --force
 git log main --oneline
 ```
+# Local ignore file
+In `.git/info/exclude`
+
+Same as `.gitignore` usage
+# gitconfig
+Git allows you to **include a config file conditionally**.
+
+## Step 1: Create host-specific configs
+
+For GitHub:
+
+```ini
+# ~/.gitconfig-github
+[user]
+    name = GitHub Name
+    email = your_github_email@example.com
+```
+
+```ini
+# ~/.gitconfig-bitbucket
+[user]
+    name = Your Bitbucket Name
+    email = your_bitbucket_email@example.com
+
+# Optional: set Bitbucket-specific aliases
+[alias]
+    co = checkout
+    br = branch
+    st = status
+
+```
+### Step 2: Edit global `~/.gitconfig` to include conditionally
+
+```ini
+[includeIf "gitdir:~/projects/github/"]
+    path = ~/.gitconfig-github
+
+[includeIf "gitdir:~/projects/bitbucket/"]
+    path = ~/.gitconfig-bitbucket
+
+# Optional: set default push behavior
+[pull]
+	rebase = true
+[push]
+	autoSetupRemote = true
+[http]
+	postBuffer = 524288000
+	maxRequestBuffer = 1000M
+```
+
+* `gitdir:` matches the repo folder.
+* Every repo under `~/projects/github/` will use GitHub credentials, etc.
+
+> Note: `gitdir:` must **end with a slash** (`/`).
+
+*(Requires Git 2.13+ for `includeIf`)*
+
+* This method automatically switches user/email based on the remote URL.
+
+## Verify effective config
+
+Inside a repo:
+
+```bash
+git config user.name
+git config user.email
+```
+It should show the host-specific config.
 
 # Delete
 
@@ -205,13 +226,14 @@ git push origin --delete <branch-name>
 
 # PR
 ```sh
-git fetch upstream
+git fetch --all
 git merge upstream/master
 git checkout -b newbranch
 git checkout my-feature-branch
-git fetch --all
 git rebase -i upstream/master
 git push --force-with-lease
 git push origin my-feature-branch --force-with-lease
 git rebase -i HEAD~2
+git commit --amend -m "New commit message here" 
+git commit -am "msg" --no-verify
 ```

@@ -1,43 +1,6 @@
-# Vite
+# What Is **Vite**?
 - [Vite official site](https://vite.dev/guide/)
-
----
-
-## 🧩 1. What Are **ES Modules (ESM)**?
-
-**ES Modules** are a *JavaScript language feature* — part of the ECMAScript (ES) standard.
-They define *how to import and export code between files* natively in JavaScript.
-
-### Example:
-
-```js
-// utils.js
-export function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-// main.js
-import { greet } from './utils.js';
-console.log(greet('Miranda'));
-```
-
-### ✅ Key Points:
-
-* **Native in browsers** (modern ones) and **Node.js** (since v12+).
-* **Static structure**: imports and exports are analyzed at compile time.
-* **Browser can directly import** other `.js` files via `<script type="module">`.
-* **No bundling required** — but can result in **many small network requests**.
-
-### 🧠 Think of ESM as:
-
-> “The standard way JavaScript organizes and shares code between files.”
-
----
-
-## ⚡ 2. What Is **Vite**?
-
 **Vite** is a **build tool + development server**.
-It’s *built around ES Modules*, but adds a lot of power and speed.
 
 ### How Vite works:
 
@@ -86,11 +49,6 @@ Vite will:
 * **ES Modules** = the *grammar* for how JavaScript files talk to each other.
 * **Vite** = a *tool* that speaks that grammar fluently, but adds speed, optimization, and a great developer experience.
 
----
-
-Excellent — **tree-shaking** is one of the most important optimization techniques in modern JavaScript bundlers. Let’s go through it clearly:
-
----
 
 # 🌳 What Is Tree-Shaking?
 
@@ -156,35 +114,6 @@ Tree-shaking relies on **static analysis** of your imports and exports.
   const module = require(someVar); // cannot be statically analyzed
   ```
 
----
-
-## 🚀 Why It Matters
-
-Without tree-shaking:
-
-* You ship all of lodash, even if you use just `_.cloneDeep`.
-* You include every helper and function from libraries you don’t call.
-* Your bundle size balloons and loads slowly.
-
-With tree-shaking:
-
-* Only the code you actually use is kept.
-* Smaller bundles → faster loading and execution.
-
----
-
-## 🧱 Tools That Do Tree-Shaking
-
-| Tool        | Tree-shaking support     | Notes                                                          |
-| ----------- | ------------------------ | -------------------------------------------------------------- |
-| **Rollup**  | ✅ Excellent              | Built around ESM static analysis. Used by Vite for production. |
-| **Vite**    | ✅ Uses Rollup internally | Tree-shakes production builds automatically.                   |
-| **esbuild** | ✅ Fast                   | Used by Vite for dependency pre-bundling.                      |
-| **Webpack** | ✅ Good                   | Requires `mode: "production"` for tree-shaking.                |
-| **Parcel**  | ✅ Built-in               | Works automatically with ESM.                                  |
-
----
-
 ## ⚠️ Caveats
 
 Tree-shaking doesn’t always work if:
@@ -201,16 +130,3 @@ Example:
 import * as utils from './utils.js';
 console.log(utils[Math.random() > 0.5 ? 'add' : 'subtract'](1, 2));
 ```
-
----
-
-## 🧠 In Short
-
-| Concept          | Summary                                   |
-| ---------------- | ----------------------------------------- |
-| **What it is**   | Removing unused code from bundles         |
-| **Why it works** | ES Modules are statically analyzable      |
-| **Who does it**  | Bundlers like Rollup, Vite, Webpack       |
-| **Result**       | Smaller, faster JavaScript for production |
-
----

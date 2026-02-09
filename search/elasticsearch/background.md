@@ -1,2 +1,0 @@
-- [Hierarchical Navigable Small World graph](./HNSW.md)
-- [Query Type](./query_type.md)
