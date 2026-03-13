@@ -1,5 +1,5 @@
 # Setting
-## **1. Shards & Replicas**
+## Shards & Replicas
 
 ```json
 "number_of_shards" : "1",
@@ -10,9 +10,7 @@
 * **0 replicas** → no copies for failover (single-node setup).
 * Simple setup, fine for small datasets or dev/testing.
 
----
-
-## **2. Analysis & Tokenization**
+## Analysis
 
 The `analysis` section shows **custom analyzers, tokenizers, and filters**. This defines **how text is indexed and searched**.
 
@@ -35,8 +33,6 @@ The `analysis` section shows **custom analyzers, tokenizers, and filters**. This
 * `concat_filter` → removes spaces to allow concatenation matches
 * `search_synonym` → handles synonyms 
 * [`keyword_marker`](keyword_marker.md)
-
-### **Key parts**
 
 #### Synonyms
 
