@@ -64,28 +64,8 @@ git config branch.master.rebase false
 # (or branch.main.rebase false)
 ```
 
-## Fix PR with other ppl's change
-
-git log --oneline --graph --decorate
-```
-
-* Look for **your commits** vs **other people’s commits**.
-* Note the commit hashes of your work — these are what you want in the PR.
-
-  * Drop (`d`) other people’s commits that accidentally got pulled in.
-git filter-repo --path semantic_search/python/docs_with_embeddings.jsonl --invert-paths
-
-    name = Your Bitbucket Name
-    email = your_bitbucket_email@example.com
-
-# Optional: set Bitbucket-specific aliases
-[alias]
-    co = checkout
-    br = branch
-    st = status
-
-```
-### Step 2: Edit global `~/.gitconfig` to include conditionally
+# Config ssh credential
+Edit global `~/.gitconfig` to include conditionally
 
 ```ini
 [includeIf "gitdir:~/projects/github/"]
